@@ -1,0 +1,4 @@
+node_modules
+locales
+.env
+.env.*

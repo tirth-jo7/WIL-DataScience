@@ -1,0 +1,35 @@
+{
+	"name": "case-studies-in-data-science",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "tsx src/main.ts",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "12.4.1",
+			"onFail": "download"
+		}
+	},
+	"type": "module",
+	"devDependencies": {
+		"@types/express": "^5.0.6",
+		"@types/node": "^26.5.1"
+	},
+	"dependencies": {
+		"@grammyjs/conversations": "^2.1.1",
+		"@grammyjs/i18n": "^1.1.2",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1",
+		"grammy": "^1.46.0",
+		"node-fetch": "^3.3.2",
+		"winston": "^3.19.0",
+		"zod": "^4.6.5"
+	}
+}
