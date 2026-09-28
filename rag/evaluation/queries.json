@@ -1,0 +1,92 @@
+[
+  {
+    "id": "known-01",
+    "type": "known",
+    "query": "I've been really stressed and overwhelmed with exams. Is there someone at uni I can talk to?",
+    "relevance": {"counselling": 2}
+  },
+  {
+    "id": "known-02",
+    "type": "known",
+    "query": "Where can I get confidential counselling for anxiety and stress?",
+    "relevance": {"counselling": 2}
+  },
+  {
+    "id": "known-03",
+    "type": "known",
+    "query": "Someone at university is threatening me and I want confidential support about what happened.",
+    "relevance": {"safer_community": 2}
+  },
+  {
+    "id": "known-04",
+    "type": "known",
+    "query": "I need urgent mental health support and I don't feel safe right now.",
+    "relevance": {"emergency_crisis": 2}
+  },
+  {
+    "id": "known-05",
+    "type": "known",
+    "query": "I'm lost between different uni services and need someone to help me work out who to contact.",
+    "relevance": {"student_welfare": 2}
+  },
+  {
+    "id": "known-06",
+    "type": "known",
+    "query": "I can't afford groceries or my Myki this week. Is there hardship support?",
+    "relevance": {"hardship_grants": 2, "financial_welfare": 1}
+  },
+  {
+    "id": "known-07",
+    "type": "known",
+    "query": "My long-term mental health condition is affecting my studies and I need learning adjustments.",
+    "relevance": {"equitable_learning": 2}
+  },
+  {
+    "id": "known-08",
+    "type": "known",
+    "query": "Can a welfare advisor help me with emergency accommodation and money problems?",
+    "relevance": {"financial_welfare": 2, "student_welfare": 1}
+  },
+  {
+    "id": "inferred-01",
+    "type": "inferred",
+    "query": "My mental health is making study harder and I also want to speak to someone about how overwhelmed I feel.",
+    "relevance": {"equitable_learning": 1, "counselling": 1}
+  },
+  {
+    "id": "inferred-02",
+    "type": "inferred",
+    "query": "I'm behind on bills, worried about housing and feeling overwhelmed. Which RMIT support could help me figure out the options?",
+    "relevance": {"student_welfare": 2, "financial_welfare": 2, "hardship_grants": 1}
+  },
+  {
+    "id": "inferred-03",
+    "type": "inferred",
+    "query": "I need help after unwanted behaviour from another person, and I also want emotional support.",
+    "relevance": {"safer_community": 2, "counselling": 1}
+  },
+  {
+    "id": "inferred-04",
+    "type": "inferred",
+    "query": "I have an ongoing health condition that affects assessments and I need support participating in study.",
+    "relevance": {"equitable_learning": 2}
+  },
+  {
+    "id": "out-01",
+    "type": "out_of_kb",
+    "query": "What was the score in the football match last night?",
+    "relevance": {}
+  },
+  {
+    "id": "out-02",
+    "type": "out_of_kb",
+    "query": "Can you write my programming assignment for me?",
+    "relevance": {}
+  },
+  {
+    "id": "out-03",
+    "type": "out_of_kb",
+    "query": "What's the weather forecast for tomorrow?",
+    "relevance": {}
+  }
+]

@@ -2,3 +2,7 @@ node_modules
 locales
 .env
 .env.*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/

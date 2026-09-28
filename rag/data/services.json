@@ -1,0 +1,58 @@
+[
+  {
+    "id": "emergency_crisis",
+    "title": "RMIT Emergency and crisis support",
+    "url": "https://www.rmit.edu.au/about/our-locations-and-facilities/facilities/safety-security/campus-security/emergency-crisis-support",
+    "content": "For urgent mental health support, RMIT provides a 24/7 urgent support phone and text service. In Australia, call 000 when there is immediate danger. This service is for urgent or crisis situations rather than routine counselling.",
+    "tags": ["urgent", "crisis", "emergency", "not safe", "immediate danger", "24/7", "mental health", "help now"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "counselling",
+    "title": "RMIT Counselling and Psychological Services",
+    "url": "https://www.rmit.edu.au/students/support-services/health-safety-wellbeing/mental-health-counselling/counselling",
+    "content": "RMIT Counselling and Psychological Services provides free, confidential, professional short-term counselling for students experiencing concerns such as stress, anxiety or low mood. Students can seek support even when the situation is not a crisis. The service can also refer students to other suitable supports.",
+    "tags": ["counselling", "counseling", "counsellor", "counselor", "stress", "stressed", "anxiety", "anxious", "overwhelmed", "mental health", "talk to someone", "emotional support"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "safer_community",
+    "title": "RMIT Safer Community",
+    "url": "https://www.rmit.edu.au/about/our-locations-and-facilities/facilities/safety-security/safer-community",
+    "content": "Safer Community is a free and confidential RMIT service for students and staff seeking support about violence, sexual harm, concerning, unwanted, uncomfortable or threatening behaviour. It can provide advice, support and referral, but it is not an emergency service.",
+    "tags": ["safer community", "threatening", "unwanted behaviour", "harassment", "violence", "unsafe behaviour", "report", "confidential support", "stalking", "bullying"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "student_welfare",
+    "title": "RMIT Student Welfare Advisors",
+    "url": "https://www.rmit.edu.au/students/support-services/student-welfare-advisors",
+    "content": "Student Welfare Advisors provide free and confidential short-term assistance to students who are struggling to navigate university processes and support. They can assist with finance, accommodation, complex or urgent support needs, and referrals to other services.",
+    "tags": ["welfare", "overwhelmed", "navigate university", "not sure who to contact", "accommodation", "finance", "complex support", "referral", "university process"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "hardship_grants",
+    "title": "RMIT Student Hardship Assistance Grants",
+    "url": "https://www.rmit.edu.au/students/support-services/financial-legal-support/hardship-assistance-grants",
+    "content": "Student Hardship Assistance Grants provide short-term one-off assistance for students experiencing financial hardship. Support may help with urgent essential needs such as food, travel, living expenses, medical costs and direct study expenses.",
+    "tags": ["financial hardship", "money", "food", "groceries", "travel", "myki", "living expenses", "bills", "grant", "cash", "voucher"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "financial_welfare",
+    "title": "RMIT Financial welfare advice",
+    "url": "https://www.rmit.edu.au/students/support-services/financial-legal-support/financial-welfare-advice",
+    "content": "Students experiencing financial difficulty can speak with a Welfare Advisor about financial assistance, emergency accommodation, budgeting and available support options, including hardship assistance and emergency vouchers.",
+    "tags": ["financial difficulty", "money", "budget", "budgeting", "emergency accommodation", "financial assistance", "welfare", "rent", "bills", "voucher"],
+    "last_verified": "2026-09-28"
+  },
+  {
+    "id": "equitable_learning",
+    "title": "RMIT Equitable Learning and disability support",
+    "url": "https://www.rmit.edu.au/students/support-services/equitable-learning",
+    "content": "Equitable Learning Services supports students with a disability, neurodivergence, long-term illness or mental health condition. The team can work with eligible students to create an Equitable Learning Plan and arrange ongoing study support and adjustments.",
+    "tags": ["equitable learning", "mental health condition", "study adjustment", "adjustments", "learning plan", "disability", "neurodivergence", "long-term illness", "assessment", "study support"],
+    "last_verified": "2026-09-28"
+  }
+]
