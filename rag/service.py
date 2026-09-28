@@ -18,11 +18,52 @@ from .schemas import (
     Source,
 )
 
-_URL_RE = re.compile(r"https?://", re.IGNORECASE)
+
+# Match Markdown links such as:
+# [RMIT Counselling](https://www.rmit.edu.au/...)
+_MARKDOWN_LINK_RE = re.compile(
+    r"\[([^\]]+)\]\(https?://[^)\s]+\)",
+    re.IGNORECASE,
+)
+
+# Match normal URLs appearing in generated prose.
+_URL_RE = re.compile(
+    r"https?://[^\s<>()]+",
+    re.IGNORECASE,
+)
+
+
+def _sanitize_answer_text(text: str) -> str:
+    """
+    Remove model-generated URLs from free-text answers.
+
+    Verified URLs are returned separately from the knowledge base
+    in the structured `sources` field.
+    """
+
+    # Keep Markdown link text but remove the URL.
+    # Example:
+    # [RMIT Counselling](https://...) -> RMIT Counselling
+    text = _MARKDOWN_LINK_RE.sub(r"\1", text)
+
+    # Remove any remaining plain URLs.
+    text = _URL_RE.sub("", text)
+
+    # Clean spacing left behind.
+    text = re.sub(r"[ \t]+([,.;:!?])", r"\1", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    return text.strip()
 
 
 class Generator(Protocol):
-    async def generate(self, system_prompt: str, user_prompt: str) -> LLMAnswer: ...
+    async def generate(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+    ) -> LLMAnswer:
+        ...
 
 
 class RagService:
@@ -39,120 +80,324 @@ class RagService:
         self.top_k = top_k
         self.min_retrieval_score = min_retrieval_score
 
-    async def handle(self, request: RagRequest) -> RagResponse:
+    async def handle(
+        self,
+        request: RagRequest,
+    ) -> RagResponse:
+
         question = request.message.text.strip()
+
+        # ------------------------------------------------------------
+        # 1. Deterministic safety pre-check
+        # ------------------------------------------------------------
+
         safety = classify_input(question)
 
         if safety.route == "crisis":
-            return self._crisis_response(request.requestId)
+            return self._crisis_response(
+                request.requestId
+            )
 
         if safety.route == "clinical":
-            return self._clinical_scope_response(request.requestId)
+            return self._clinical_scope_response(
+                request.requestId
+            )
 
         if safety.route == "prompt_injection":
             return self._unsupported_response(
                 request.requestId,
-                "I can help with finding verified student wellbeing support services, but I can't follow requests to override the assistant's safety or source rules.",
+                (
+                    "I can help with finding verified student wellbeing "
+                    "support services, but I can't follow requests to "
+                    "override the assistant's safety or source rules."
+                ),
             )
 
-        retrieved = self.retriever.retrieve(question, top_k=self.top_k)
-        if not retrieved or retrieved[0].score < self.min_retrieval_score:
+        # ------------------------------------------------------------
+        # 2. Retrieve relevant verified sources
+        # ------------------------------------------------------------
+
+        retrieved = self.retriever.retrieve(
+            question,
+            top_k=self.top_k,
+        )
+
+        if (
+            not retrieved
+            or retrieved[0].score < self.min_retrieval_score
+        ):
             return self._unsupported_response(
                 request.requestId,
-                "I couldn't find enough verified information in the wellbeing knowledge base to answer that safely. Try describing the kind of support you are looking for.",
+                (
+                    "I couldn't find enough verified information in the "
+                    "wellbeing knowledge base to answer that safely. "
+                    "Try describing the kind of support you are looking for."
+                ),
             )
 
-        user_prompt = build_user_prompt(question, retrieved)
+        # ------------------------------------------------------------
+        # 3. Build grounded RAG prompt
+        # ------------------------------------------------------------
+
+        user_prompt = build_user_prompt(
+            question,
+            retrieved,
+        )
+
+        # ------------------------------------------------------------
+        # 4. Generate response with Ollama
+        # ------------------------------------------------------------
 
         try:
-            generated = await self.generator.generate(SYSTEM_PROMPT, user_prompt)
+            generated = await self.generator.generate(
+                SYSTEM_PROMPT,
+                user_prompt,
+            )
+
         except Exception:
             return self._unsupported_response(
                 request.requestId,
-                "I couldn't generate a grounded answer right now. Please use the verified support links provided by the university directly.",
+                (
+                    "I couldn't generate a grounded answer right now. "
+                    "Please use the verified support links provided by "
+                    "the university directly."
+                ),
             )
 
-        # If the LLM notices urgency that the deterministic pre-check missed, route to
-        # the fixed crisis response rather than letting the model improvise contact details.
+        # ------------------------------------------------------------
+        # 5. Post-generation safety checks
+        # ------------------------------------------------------------
+
+        # If the model identifies urgency that the deterministic
+        # pre-check missed, use the fixed application response.
         if generated.type == "crisis":
-            return self._crisis_response(request.requestId)
+            return self._crisis_response(
+                request.requestId
+            )
 
+        # Reject clinical advice.
         if generated.clinicalAdvice:
-            return self._clinical_scope_response(request.requestId)
+            return self._clinical_scope_response(
+                request.requestId
+            )
 
+        # Respect model uncertainty when it cannot support an answer.
         if generated.type == "unsupported":
-            return self._unsupported_response(request.requestId, generated.text)
-
-        retrieved_by_id = {source.id: source for source in retrieved}
-        allowed_ids = list(dict.fromkeys(generated.source_ids))
-        selected = [retrieved_by_id[sid] for sid in allowed_ids if sid in retrieved_by_id]
-
-        # Fail closed on fabricated citations or unattributed navigation answers.
-        if len(selected) != len(allowed_ids) or not selected:
             return self._unsupported_response(
                 request.requestId,
-                "I couldn't verify the sources for that answer, so I won't present it as supported information.",
+                generated.text,
             )
 
-        # URLs belong in the structured source list only, where they come from the KB.
-        if _URL_RE.search(generated.text):
+        # ------------------------------------------------------------
+        # 6. Validate source attribution
+        # ------------------------------------------------------------
+
+        retrieved_by_id = {
+            source.id: source
+            for source in retrieved
+        }
+
+        # Remove duplicate source IDs while preserving order.
+        allowed_ids = list(
+            dict.fromkeys(generated.source_ids)
+        )
+
+        selected = [
+            retrieved_by_id[source_id]
+            for source_id in allowed_ids
+            if source_id in retrieved_by_id
+        ]
+
+        # Fail closed if the LLM invents a source ID or gives
+        # a navigation answer without a valid source.
+        if (
+            len(selected) != len(allowed_ids)
+            or not selected
+        ):
             return self._unsupported_response(
                 request.requestId,
-                "I couldn't verify the source formatting for that answer, so I won't present it as supported information.",
+                (
+                    "I couldn't verify the sources for that answer, "
+                    "so I won't present it as supported information."
+                ),
             )
+
+        # ------------------------------------------------------------
+        # 7. Sanitize model-generated URLs
+        # ------------------------------------------------------------
+
+        # URLs should only appear in the structured source list.
+        # Small local models can sometimes echo source URLs even when
+        # instructed not to. We remove them from prose rather than
+        # rejecting an otherwise grounded answer.
+        answer_text = _sanitize_answer_text(
+            generated.text
+        )
+
+        if not answer_text:
+            return self._unsupported_response(
+                request.requestId,
+                (
+                    "I couldn't produce a safely formatted grounded "
+                    "answer from the verified sources."
+                ),
+            )
+
+        # ------------------------------------------------------------
+        # 8. Return validated grounded response
+        # ------------------------------------------------------------
 
         return RagResponse(
             requestId=request.requestId,
-            response=ResponseBody(text=generated.text),
+
+            response=ResponseBody(
+                text=answer_text
+            ),
+
             classification=Classification(
                 type="navigation",
                 confidence=generated.confidence,
             ),
-            sources=[RagSource(title=source.title, url=source.url) for source in selected],
-            safety=SafetyMetadata(crisisDetected=False, clinicalAdvice=False),
+
+            sources=[
+                RagSource(
+                    title=source.title,
+                    url=source.url,
+                )
+                for source in selected
+            ],
+
+            safety=SafetyMetadata(
+                crisisDetected=False,
+                clinicalAdvice=False,
+            ),
         )
 
-    def _crisis_response(self, request_id: str) -> RagResponse:
-        source = self._required_source("emergency_crisis")
+    def _crisis_response(
+        self,
+        request_id: str,
+    ) -> RagResponse:
+
+        source = self._required_source(
+            "emergency_crisis"
+        )
+
         text = (
-            "For urgent mental health support, use RMIT's 24/7 urgent support line: "
-            "call 1300 305 737 or text 0488 884 162. If there is immediate danger in Australia, call 000."
-        )
-        return RagResponse(
-            requestId=request_id,
-            response=ResponseBody(text=text),
-            classification=Classification(type="crisis", confidence=1.0),
-            sources=[RagSource(title=source.title, url=source.url)],
-            safety=SafetyMetadata(crisisDetected=True, clinicalAdvice=False),
+            "For urgent mental health support, use RMIT's "
+            "verified urgent-support service. If there is immediate "
+            "danger in Australia, contact emergency services."
         )
 
-    def _clinical_scope_response(self, request_id: str) -> RagResponse:
-        source = self.retriever.get_source("counselling")
-        sources = [RagSource(title=source.title, url=source.url)] if source else []
         return RagResponse(
             requestId=request_id,
+
+            response=ResponseBody(
+                text=text
+            ),
+
+            classification=Classification(
+                type="crisis",
+                confidence=1.0,
+            ),
+
+            sources=[
+                RagSource(
+                    title=source.title,
+                    url=source.url,
+                )
+            ],
+
+            safety=SafetyMetadata(
+                crisisDetected=True,
+                clinicalAdvice=False,
+            ),
+        )
+
+    def _clinical_scope_response(
+        self,
+        request_id: str,
+    ) -> RagResponse:
+
+        source = self.retriever.get_source(
+            "counselling"
+        )
+
+        sources = (
+            [
+                RagSource(
+                    title=source.title,
+                    url=source.url,
+                )
+            ]
+            if source
+            else []
+        )
+
+        return RagResponse(
+            requestId=request_id,
+
             response=ResponseBody(
                 text=(
-                    "I can help you find support services, but I can't diagnose a condition, prescribe treatment, or recommend medication. "
-                    "A qualified health professional or RMIT counselling service can discuss your concerns with you."
+                    "I can help you find support services, but I can't "
+                    "diagnose a condition, prescribe treatment, or "
+                    "recommend medication. A qualified health professional "
+                    "or RMIT counselling service can discuss your concerns "
+                    "with you."
                 )
             ),
-            classification=Classification(type="unsupported", confidence=1.0),
+
+            classification=Classification(
+                type="unsupported",
+                confidence=1.0,
+            ),
+
             sources=sources,
-            safety=SafetyMetadata(crisisDetected=False, clinicalAdvice=False),
+
+            safety=SafetyMetadata(
+                crisisDetected=False,
+                clinicalAdvice=False,
+            ),
         )
 
-    def _unsupported_response(self, request_id: str, text: str) -> RagResponse:
+    def _unsupported_response(
+        self,
+        request_id: str,
+        text: str,
+    ) -> RagResponse:
+
         return RagResponse(
             requestId=request_id,
-            response=ResponseBody(text=text),
-            classification=Classification(type="unsupported", confidence=1.0),
+
+            response=ResponseBody(
+                text=text
+            ),
+
+            classification=Classification(
+                type="unsupported",
+                confidence=1.0,
+            ),
+
             sources=[],
-            safety=SafetyMetadata(crisisDetected=False, clinicalAdvice=False),
+
+            safety=SafetyMetadata(
+                crisisDetected=False,
+                clinicalAdvice=False,
+            ),
         )
 
-    def _required_source(self, source_id: str) -> Source:
-        source = self.retriever.get_source(source_id)
+    def _required_source(
+        self,
+        source_id: str,
+    ) -> Source:
+
+        source = self.retriever.get_source(
+            source_id
+        )
+
         if source is None:
-            raise RuntimeError(f"Required safety source '{source_id}' is missing from the KB")
+            raise RuntimeError(
+                f"Required safety source "
+                f"'{source_id}' is missing from the KB"
+            )
+
         return source
