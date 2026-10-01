@@ -35,30 +35,79 @@ def health():
 
 INTERNATIONAL_KB = [
     {
-        "keywords": ["oshc", "health cover", "overseas student health"],
+        "keywords": ["oshc cover", "oshc benefits", "oshc mental health", "what does", "cover for"],
         "text": (
-            "As an international student, your Overseas Student Health "
-            "Cover (OSHC) includes access to mental health support. "
-            "You can use OSHC to see a GP who can refer you to a "
-            "psychologist or counsellor, often at reduced or no cost "
-            "depending on your policy."
+            "Medibank Comprehensive OSHC (RMIT's provider) includes benefits towards psychology, "
+            "counselling, and mental health social worker services from recognised providers, as "
+            "well as GP consultations related to a mental health management plan. It also covers "
+            "emergency ambulance and eligible prescription medicines. Coverage isn't unlimited or "
+            "automatic — check your policy for provider requirements and any gap fees."
         ),
         "source": {
-            "title": "OSHC Mental Health Support",
-            "url": "https://example.com/oshc-mental-health",
+            "title": "Medibank Comprehensive OSHC — Mental Health Support",
+            "url": "https://www.medibank.com.au/overseas-health-insurance/oshc/comprehensive-oshc.htm",
         },
     },
     {
-        "keywords": ["international student", "visa", "eligibility"],
+        "keywords": ["counselling helpline", "oshc counselling", "stress line", "24/7 student health", "24/7 helpline"],
         "text": (
-            "International students can access the university's free "
-            "on-campus counselling service regardless of their OSHC "
-            "provider. This is separate from and in addition to any "
-            "cover included in your health insurance."
+            "If you're a Medibank OSHC member, you can call the 24/7 Student Health and Support Line "
+            "on 1800 887 283 for medical assistance from a registered nurse, stress and trauma "
+            "counselling services, and help navigating the health system."
         ),
         "source": {
-            "title": "International Student Support Services",
-            "url": "https://example.com/international-support",
+            "title": "24/7 Student Health and Support Line (Medibank OSHC)",
+            "url": "https://www.rmit.edu.au/study-with-us/international-students/apply-to-rmit-international-students/student-visas/health-cover-requirements",
+        },
+    },
+    {
+        "keywords": ["oshc", "health cover", "health insurance", "overseas student health"],
+        "text": (
+            "As an international student on an Australian student visa, you're required to hold "
+            "valid Overseas Student Health Cover (OSHC) with an approved provider for the entire "
+            "duration of your visa. RMIT arranges Medibank Comprehensive OSHC on your behalf when "
+            "you accept your offer, or you can use your own approved provider."
+        ),
+        "source": {
+            "title": "Overseas Student Health Cover requirements",
+            "url": "https://www.rmit.edu.au/study-with-us/international-students/apply-to-rmit-international-students/student-visas/health-cover-requirements",
+        },
+    },
+    {
+        "keywords": ["counselling", "counsellor", "therapy", "psychologist", "mental health support"],
+        "text": (
+            "RMIT Counselling and Psychological Services offers free, confidential, short-term "
+            "counselling to all currently enrolled RMIT students located in Australia, including "
+            "international students, covering issues like anxiety, depression, and stress."
+        ),
+        "source": {
+            "title": "RMIT Counselling and Psychological Services",
+            "url": "https://www.rmit.edu.au/students/support-and-facilities/student-support/counselling",
+        },
+    },
+    {
+        "keywords": ["offshore", "exchange", "outside australia", "overseas student located"],
+        "text": (
+            "If you're an RMIT student currently located outside Australia, on-campus counselling "
+            "isn't available due to Australian health regulatory law. Students on exchange can call "
+            "RMIT International SOS on +61 2 9372 2468, and international students located offshore "
+            "can call Medibank on +61 2 8905 0307 for phone-based mental health support advice."
+        ),
+        "source": {
+            "title": "RMIT Counselling and Psychological Services",
+            "url": "https://www.rmit.edu.au/students/support-and-facilities/student-support/counselling",
+        },
+    },
+    {
+        "keywords": ["international student", "support services", "eligibility", "new to rmit"],
+        "text": (
+            "RMIT provides a dedicated support hub for international students covering health, "
+            "careers, study and English language support, and events, in addition to general RMIT "
+            "student support services available to all students."
+        ),
+        "source": {
+            "title": "International students — RMIT Support Services",
+            "url": "https://www.rmit.edu.au/students/support-services/international-students.html",
         },
     },
 ]
