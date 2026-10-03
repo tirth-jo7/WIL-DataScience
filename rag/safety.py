@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-
 SafetyRoute = Literal["normal", "crisis", "clinical", "prompt_injection"]
 
 
@@ -14,21 +13,23 @@ class SafetyDecision:
     reason: str | None = None
 
 
-# High-recall deterministic routing for urgent messages. The phrases are intentionally
-# broad because a missed crisis is costlier than an unnecessary escalation.
 _CRISIS_PATTERNS = (
     r"\bcrisis\b",
-    r"\burgent (?:mental health )?(?:help|support)\b",
+    r"\burgent (?:mental health |wellbeing )?(?:help|support)\b",
     r"\bimmediate danger\b",
+    r"\bin danger\b",
     r"\bnot safe (?:right now|at the moment|currently)?\b",
     r"\bdon'?t feel safe\b",
+    r"\bcan'?t stay safe\b",
     r"\bemergency\b",
+    r"\bneed help (?:right )?now\b",
+    r"\bhelp tonight\b",
     r"\bsuicid(?:e|al)\b",
     r"\bself[- ]?harm\b",
 )
 
 _CLINICAL_PATTERNS = (
-    r"\bdiagnose (?:me|my)\b",
+    r"\bdiagnos(?:e|ed|ing|is)\b",
     r"\bwhat (?:mental health )?(?:condition|disorder) do i have\b",
     r"\bwhat medication should i (?:take|use)\b",
     r"\bwhat medicine should i (?:take|use)\b",

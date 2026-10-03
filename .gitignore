@@ -6,3 +6,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+
+__pycache__/
+*.pyc
+retrieval/vector_store.json
+.env

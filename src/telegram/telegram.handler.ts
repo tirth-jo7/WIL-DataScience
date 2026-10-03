@@ -19,13 +19,13 @@ export class TelegramHandler {
     bot.command("start", async (ctx) => {
       await ctx.reply(
         "👋 Welcome!\n\n" +
-        "Tell me what kind of wellbeing support you are looking for.",
+        "Ask me about student support, wellbeing services, eligibility, processes, or where to get help.",
       );
     });
 
     bot.command("help", async (ctx) => {
       await ctx.reply(
-        "Describe your situation in your own words and I will help you find an appropriate support service.",
+        "Describe your question in your own words. I can explain verified support options and help you work out the next step.",
       );
     });
 
@@ -39,38 +39,26 @@ export class TelegramHandler {
 
     const request = {
       requestId,
-
       channel: "telegram" as const,
-
       user: {
         id: ctx.from.id,
         username: ctx.from.username,
         firstName: ctx.from.first_name,
       },
-
       message: {
         text: ctx.message.text,
         timestamp: new Date().toISOString(),
       },
     };
 
-    console.log("\n📤 Sending to RAG:");
-    console.dir(request, { depth: null });
-
     try {
       await ctx.replyWithChatAction("typing");
-
       const result = await this.ragClient.query(request);
-
-      console.log("\n📥 RAG response:");
-      console.dir(result, { depth: null });
-
       await this.sendResponse(ctx, result);
     } catch (error) {
       console.error("❌ RAG request failed:", error);
-
       await ctx.reply(
-        "⚠️ I could not reach the wellbeing service right now. Please try again shortly.",
+        "⚠️ I could not reach the student support service right now. Please try again shortly.",
       );
     }
   }
@@ -85,7 +73,11 @@ export class TelegramHandler {
       message += "\n\n<b>Sources</b>\n";
 
       for (const source of result.sources) {
-        message += `• <a href="${source.url}">${source.title}</a>\n`;
+        if (source.url) {
+          message += `• <a href="${source.url}">${source.title}</a>\n`;
+        } else {
+          message += `• ${source.title}\n`;
+        }
       }
     }
 

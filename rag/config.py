@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
-TOP_K = int(os.getenv("RAG_TOP_K", "3"))
+TOP_K = int(os.getenv("RAG_TOP_K", "4"))
 MIN_RETRIEVAL_SCORE = float(os.getenv("RAG_MIN_RETRIEVAL_SCORE", "0.18"))
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "60"))
 KNOWLEDGE_BASE_PATH = Path(

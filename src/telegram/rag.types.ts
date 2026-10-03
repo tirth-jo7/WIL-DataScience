@@ -17,7 +17,7 @@ export interface RagRequest {
 
 export interface RagSource {
   title: string;
-  url: string;
+  url?: string | null;
 }
 
 export interface RagResponse {

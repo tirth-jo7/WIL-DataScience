@@ -26,7 +26,7 @@ class RagRequest(BaseModel):
 class Source(BaseModel):
     id: str
     title: str
-    url: str
+    url: str | None = None
     content: str
     tags: list[str] = Field(default_factory=list)
     last_verified: str | None = None
@@ -38,7 +38,7 @@ class RetrievedSource(Source):
 
 
 class LLMAnswer(BaseModel):
-    text: str = Field(min_length=1, max_length=1800)
+    text: str = Field(min_length=1, max_length=2200)
     type: Literal["navigation", "crisis", "unsupported"]
     confidence: float = Field(ge=0.0, le=1.0)
     source_ids: list[str] = Field(default_factory=list)
@@ -47,7 +47,7 @@ class LLMAnswer(BaseModel):
 
 class RagSource(BaseModel):
     title: str
-    url: str
+    url: str | None = None
 
 
 class ResponseBody(BaseModel):
